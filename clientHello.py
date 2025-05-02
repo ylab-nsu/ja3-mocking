@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 
 @dataclass
 class ClientHello:
+    server_name: str = ""
     TLS_version: int = 0
     Ciphers: List[int] = field(default_factory=list)
     Extensions: List[int] = field(default_factory=list)

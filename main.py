@@ -1,5 +1,5 @@
 from clientHello import ClientHello
-from typing import List
+from typing import List, Optional
 from MD5_hashing import MD5
 import pyshark
 
@@ -10,8 +10,12 @@ EllipticCurves = []
 EllipticCurvesPointFormats = []
 
 
+def not_reserved(line: str) -> bool:
+    return 'Reserved' not in line
+
+
 def get_hash(packet: ClientHello) -> str:
-    print(str(packet))
+    # print(str(packet))
     return MD5(str(packet))
 
 
@@ -21,16 +25,8 @@ def get_request(hash: str) -> ClientHello:
         return packet
 
 
-def handle_packet(packet):
-    """
-        Будем обрабатывать пакеты, а затем извлекать из них нужную информацию.
-        Потом будем помещать объект ClientHello и куда-то напрмиер сохранять.
-    """
-    pass
-
-
-def get_code(e: str) -> int:
-    return int(e.strip().split()[0], 16)
+def get_code(e: str, split_separator=" ", strip_separator=" ", base=10) -> int:
+    return int(e.strip().split(split_separator)[-1].strip(strip_separator), base)
 
 
 def read_field(string: str) -> List[int]:
@@ -38,21 +34,20 @@ def read_field(string: str) -> List[int]:
 
 
 def read_ciphers(tls):
+    # print(str(tls))
     result = []
     for line in str(tls).split("\n"):
-        if 'Cipher Suite:' in line:
-            result.append(int(line.split()[-1].strip("()"), 16))
-
+        if 'Cipher Suite:' in line and not_reserved(line):
+            result.append(get_code(line, strip_separator="()", base=16))
     return result
 
 
 def read_extensions(tls) -> List[int]:
     extensions = []
     for line in str(tls).split('\n'):
-        if 'Type:' in line and line.split()[0] == 'Type:':
+        if 'Type:' in line and line.split()[0] == 'Type:' and not_reserved(line):
             try:
-                code = line.strip().split()[-1].strip('()')
-                extensions.append(int(code))
+                extensions.append(get_code(line, strip_separator="()"))
             except:
                 continue
     return extensions
@@ -61,10 +56,9 @@ def read_extensions(tls) -> List[int]:
 def read_elliptic_curves(tls) -> List[int]:
     curves = []
     for line in str(tls).split('\n'):
-        if 'Supported Group:' in line:
+        if 'Supported Group:' in line and not_reserved(line):
             try:
-                hex_code = line.split('(')[-1].strip(')')
-                curves.append(int(hex_code, 16))
+                curves.append(get_code(line, strip_separator=")", split_separator="(", base=16))
             except:
                 continue
     return curves
@@ -75,14 +69,25 @@ def read_ec_point_formats(tls) -> List[int]:
     for line in str(tls).split('\n'):
         if 'EC point format:' in line:
             try:
-                hex_code = line.split('(')[-1].strip(')')
-                formats.append(int(hex_code, 16))
+                formats.append(get_code(line, strip_separator=")", split_separator="(", base=16))
             except:
                 continue
     return formats
 
 
-def read_client_hello(pkt) -> ClientHello:
+def read_server_name(tls) -> str:
+
+    server_name = list(filter(lambda x: "Server Name:" in x, str(tls).splitlines()))
+    result: str
+    match len(server_name):
+        case 0: result = ""
+        case 1: result = server_name[0].split()[-1]
+        case _: raise ValueError("Tls cannot have more than 1 server names!")
+
+    return result
+
+
+def read_client_hello(pkt) -> Optional[ClientHello]:
     if hasattr(pkt, 'tls'):
         tls = pkt.tls
         result = ClientHello()
@@ -90,6 +95,7 @@ def read_client_hello(pkt) -> ClientHello:
             result['tls_version'] = int(tls.handshake_version.replace(':', ''), 16)
         else:
             result['tls_version'] = None
+        result.server_name = read_server_name(tls)
         result['ciphers'] = read_ciphers(tls)
         result['extensions'] = read_extensions(tls)
         result['elliptic_curves'] = read_elliptic_curves(tls)
@@ -101,7 +107,6 @@ def get_JA3_from_packet(pkt) -> str:
     if hasattr(pkt, 'tls'):
         tls = pkt.tls
         if hasattr(tls, 'handshake_ja3'):
-            print(tls.handshake_ja3_full, end = "\n")
             return tls.handshake_ja3
 
 
@@ -109,18 +114,25 @@ def read_wireshark_file(pcapng_file: str) -> dict[ClientHello]:
     file = pyshark.FileCapture(pcapng_file, display_filter="tls.handshake.type == 1")
     result = {}
     for pkt in file:
-        # for line in (pkt.tls.handshake_extensions_ec_point_formats.all_fields):
-        #         print(line)
-        # for line in str(pkt.tls).split("\n"):
-        #     if 'Cipher Suite:' in line:
-        #         print(line)
-        # print(pkt.tls.field_names)
-        # print(list(filter(lambda x: x.startswith("handshake_cipher"), pkt.tls.field_names)))
-        result[pkt] = read_client_hello(pkt)
+        cl = read_client_hello(pkt)
+        if cl is not None:
+            result[pkt] = cl
+            print(result[pkt].server_name)
+    file.close()
+    return result
+
+
+def get_handshake_by_domain(pcapng_file: str, domain: str) -> ClientHello:
+    file = pyshark.FileCapture(pcapng_file, display_filter="tls.handshake.type == 1")
+    result = []
+    for pkt in file:
+        cl = read_client_hello(pkt)
+        if cl is not None and domain in cl.server_name:
+            result.append(cl)
     file.close()
     return result
 
 
 def main():
-    file_name = "test_2_yadro.pcapng"
+    file_name = "test2.pcap"
     clh = read_client_hello(file_name)
