@@ -10,7 +10,7 @@ pip install pyshark
 ```
 # Usage
 ```commandline
-python hello.py [name-of-your-pcap-file] [domain]
+python hello.py <name-of-your-pcap-file> <domain [-hs|--hashing]
 ```
 For example:
 ```commandline
@@ -62,7 +62,6 @@ JA3-fingerprint without hashing:
    771,4865-4866-4867-49196-49195-52393-49200-49199-52392-49162-49161-49172-49171-157-156-53-47-49160-49170-10,,29-23-24-25,0 
    with given domain: mail.google.com 
    hash: 15c05a8cb13cf1f061986b7969c89a3c
-
 ```
 
 
