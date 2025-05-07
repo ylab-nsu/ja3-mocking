@@ -10,7 +10,7 @@ pip install pyshark
 ```
 # Usage
 ```commandline
-python hello.py <name-of-your-pcap-file> <domain [-hs|--hashing]
+python hello.py <name-of-your-pcap-file> <domain> [-hs|--hashing]
 ```
 For example:
 ```commandline
