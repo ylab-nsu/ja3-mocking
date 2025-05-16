@@ -1,4 +1,6 @@
-from src.wireshark_parsing import read_wireshark_file, get_JA3_from_packet, get_hash
+from src.wireshark_parsing import (get_hash, get_JA3_from_packet,
+                                   read_wireshark_file)
+
 
 def test1():
     file_name = "test2.pcap"
