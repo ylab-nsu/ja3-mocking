@@ -1,6 +1,6 @@
 import argparse
-from src.wireshark_parsing import get_handshake_by_domain
 
+from src.wireshark_parsing import get_handshake_by_domain
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Getting client_hello by domain")

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
-from src.MD5_hashing import MD5
+
+from MD5_hashing import MD5
 
 
 @dataclass
@@ -52,9 +53,9 @@ class ClientHello:
     def pprint(self, flag: bool):
         if flag:
             print(
-                f"JA3-fingerprint without hashing: \n" +
-                f"   {self} \n   with given domain: {self.server_name} \n   " +
+                f"JA3-fingerprint without hashing: \n   {self} \n"
+                f"   with given domain: {self.server_name} \n   " +
                 f"hash: {MD5(str(self))}")
         else:
-            print(f"JA3-fingerprint without hashing: \n   " +
+            print("JA3-fingerprint without hashing: \n   " +
                   f"{self} \n   with given domain: {self.server_name} \n")

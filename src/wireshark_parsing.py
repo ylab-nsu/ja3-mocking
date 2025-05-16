@@ -1,7 +1,9 @@
-from src.clientHello import ClientHello
 from typing import List, Optional
-from src.MD5_hashing import MD5
+
 import pyshark
+
+from clientHello import ClientHello
+from MD5_hashing import MD5
 
 
 def not_reserved(line: str) -> bool:
