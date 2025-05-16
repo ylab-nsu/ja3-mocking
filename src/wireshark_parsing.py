@@ -38,10 +38,7 @@ def read_extensions(tls) -> List[int]:
     extensions = []
     for line in str(tls).split('\n'):
         if 'Type:' in line and line.split()[0] == 'Type:' and not_reserved(line):
-            try:
-                extensions.append(get_code(line, strip_separator="()"))
-            except:
-                continue
+            extensions.append(get_code(line, strip_separator="()"))
     return extensions
 
 
@@ -49,10 +46,7 @@ def read_elliptic_curves(tls) -> List[int]:
     curves = []
     for line in str(tls).split('\n'):
         if 'Supported Group:' in line and not_reserved(line):
-            try:
-                curves.append(get_code(line, strip_separator=")", split_separator="(", base=16))
-            except:
-                continue
+            curves.append(get_code(line, strip_separator=")", split_separator="(", base=16))
     return curves
 
 
@@ -60,21 +54,20 @@ def read_ec_point_formats(tls) -> List[int]:
     formats = []
     for line in str(tls).split('\n'):
         if 'EC point format:' in line:
-            try:
-                formats.append(get_code(line, strip_separator=")", split_separator="(", base=16))
-            except:
-                continue
+            formats.append(get_code(line, strip_separator=")", split_separator="(", base=16))
     return formats
 
 
 def read_server_name(tls) -> str:
-
     server_name = list(filter(lambda x: "Server Name:" in x, str(tls).splitlines()))
     result: str
     match len(server_name):
-        case 0: result = ""
-        case 1: result = server_name[0].split()[-1]
-        case _: raise ValueError("Tls cannot have more than 1 server names!")
+        case 0:
+            result = ""
+        case 1:
+            result = server_name[0].split()[-1]
+        case _:
+            raise ValueError("Tls cannot have more than 1 server names!")
 
     return result
 
@@ -127,4 +120,4 @@ def get_handshake_by_domain(pcapng_file: str, domain: str) -> ClientHello:
 
 def main():
     file_name = "../tests/test2.pcap"
-    clh = read_client_hello(file_name)
+    _ = read_client_hello(file_name)

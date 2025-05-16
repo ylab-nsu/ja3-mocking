@@ -13,7 +13,7 @@ class ClientHello:
     EllipticCurvePointFormats: List[int] = field(default_factory=list)
 
     def __str__(self):
-        return str(self.TLS_version) + "," +\
+        return str(self.TLS_version) + "," + \
             "-".join(map(str, self.Ciphers)) + "," + \
             "-".join(map(str, self.Extensions)) + "," + \
             "-".join(map(str, self.EllipticCurves)) + "," + \
@@ -51,7 +51,10 @@ class ClientHello:
 
     def pprint(self, flag: bool):
         if flag:
-            print(f"JA3-fingerprint without hashing: \n   {self} \n   with given domain: {self.server_name} \n   hash: {MD5(str(self))}")
+            print(
+                f"JA3-fingerprint without hashing: \n" +
+                f"   {self} \n   with given domain: {self.server_name} \n   " +
+                f"hash: {MD5(str(self))}")
         else:
-            print(f"JA3-fingerprint without hashing: \n   {self} \n   with given domain: {self.server_name} \n")
-
+            print(f"JA3-fingerprint without hashing: \n   " +
+                  f"{self} \n   with given domain: {self.server_name} \n")
