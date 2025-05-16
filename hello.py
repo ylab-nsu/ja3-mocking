@@ -18,7 +18,3 @@ if __name__ == "__main__":
 
     for ch in get_handshake_by_domain(args.file, args.domain):
         ch.pprint(args.hashing)
-
-
-
-
