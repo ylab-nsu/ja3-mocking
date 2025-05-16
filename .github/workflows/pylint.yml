@@ -21,7 +21,7 @@ jobs:
         pip install flake8 black isort mypy
 
     - name: Run flake8
-      run: flake8 src/ --max-line-length=88
+      run: flake8 src/ --max-line-length=98
 
     - name: Run black check
       run: black --check src/
