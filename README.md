@@ -1,13 +1,39 @@
 # ja3-mocking
-A tool for getting JA3 fingerprint from pyshark files with known domain.
+A tool for getting JA3 fingerprint from pyshark files with known domain. Initial goal was to not just get JA3 fingerprint, but to mock this fingerprint.
+# Goals
+The main goals were to:
+ - ✅  Get main parameters of ClientHello request such as TLS version, supported ciphers, elliptic curves and e.t.c using pyshark 
+ - ✅  Solve direct task: get JA3 fingerprint from basic parameters using MD5 hashing
+ - ❌  Implement bruteforce solution for reversed task and then optimize it 
+ - ❌  Try to behave like browser mocking someones fingerprint
+
+# JA3 fingerprint in a nutshell
+
+**JA3 fingerprint** is a method for identifying 
+TLS clients by creating a hash (fingerprint) of the 
+fields in the TLS Client Hello message. It includes 
+parameters like the TLS version, supported cipher suites, 
+extensions, elliptic curves, and more. Since different applications
+and libraries construct their TLS Client Hello messages in unique ways, 
+the resulting JA3 fingerprint can help distinguish between browsers,
+apps, bots, or malware—even if they use the same IP address. 
+It's widely used in network security for traffic analysis, threat detection, and anomaly spotting.
+
+
+
 # Installation
+First of all clone repository:
 ```commandline
 git clone https://github.com/ylab-nsu/ja3-mocking.git
 ```
-Also you should install [pyshark](https://github.com/KimiNewt/pyshark) python package to use our tool: 
+
+Then install dependencies:
 ```commandline
-pip install pyshark
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
+
 # Usage
 ```commandline
 python hello.py <name-of-your-pcap-file> <domain> [-hs|--hashing]
