@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from MD5_hashing import MD5
+from src.MD5_hashing import MD5
 
 
 @dataclass
